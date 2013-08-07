@@ -47,8 +47,8 @@ SOURCES += \
     misc/qtextend.cpp \
     ui/facelocatewidget.cpp \
     face/templateface.cpp \
-    misc/tps.cpp \
-    gl/dotobject.cpp
+    gl/dotobject.cpp \
+    misc/3dhelper.cpp
 
 HEADERS += \
     fiber.h \
@@ -82,8 +82,8 @@ HEADERS += \
     misc/qtextend.h \
     ui/facelocatewidget.h \
     face/templateface.h \
-    misc/tps.h \
-    gl/dotobject.h
+    gl/dotobject.h \
+    misc/3dhelper.h
 
 FORMS += \
     ui/scribblewidget.ui \
