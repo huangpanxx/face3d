@@ -95,3 +95,16 @@ RESOURCES += \
     resource.qrc
 
 
+
+macx {
+# mac only
+DEFINES += MACX
+}
+unix:!macx{
+# linux only
+DEFINES += LINUX
+}
+win32 {
+# windows only
+DEFINES += WIN32
+}

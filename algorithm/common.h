@@ -5,6 +5,12 @@
 #include <assert.h>
 #include <time.h>
 
+#ifdef MACX
+#include <cs.h>
+#endif
+#ifdef LINUX
+#include <suitesparse/cs.h>
+#endif
 
 
 /*debug*/

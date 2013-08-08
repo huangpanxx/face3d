@@ -1,5 +1,4 @@
 #include "glviewer.h"
-#include <glu.h>
 #include <QKeyEvent>
 #include <QDebug>
 
@@ -58,7 +57,14 @@ void GLViewer::resizeGL( int width, int height ) {
     glViewport( 0, 0, (GLint)width, (GLint)height );
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-    gluPerspective( 45.0, (GLfloat)width/(GLfloat)height, 0.1, 1000.0 );
+
+    GLfloat zNear = 0.1;
+    GLfloat zFar = 1000.0;
+    GLfloat aspect = (GLfloat)width/(GLfloat)height;
+    GLfloat fH = tan(GLfloat(90.0/360.0*3.14159))*zNear;
+    GLfloat fW = fH * aspect;
+    glFrustum(-fW, fW, -fH, fH, zNear, zFar);
+//    gluPerspective( 45.0, (GLfloat)width/(GLfloat)height, 0.1, 1000.0 );
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
 }
