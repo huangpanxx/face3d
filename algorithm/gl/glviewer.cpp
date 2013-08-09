@@ -31,17 +31,16 @@ void GLViewer::initializeGL() {
 
     glEnable( GL_TEXTURE_2D );
 
-    GLfloat lightAmbient[4] = { 0.5, 0.5, 0.5, 1.0 };
-    GLfloat lightDiffuse[4] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat lightPosition[4] = { 0.0, 0.0, 2.0, 1.0 };
+//    GLfloat lightAmbient[4] = { 0.5, 0.5, 0.5, 1.0 };
+//    GLfloat lightDiffuse[4] = { 1.0, 1.0, 1.0, 1.0 };
+//    GLfloat lightPosition[4] = { 0.0, 0.0, 2.0, 1.0 };
+//    glLightfv( GL_LIGHT1, GL_AMBIENT, lightAmbient );
+//    glLightfv( GL_LIGHT1, GL_DIFFUSE, lightDiffuse );
+//    glLightfv( GL_LIGHT1, GL_POSITION, lightPosition );
+//    glEnable( GL_LIGHT1 );
+//    glEnable(GL_COLOR_MATERIAL);
 
-    glLightfv( GL_LIGHT1, GL_AMBIENT, lightAmbient );
-    glLightfv( GL_LIGHT1, GL_DIFFUSE, lightDiffuse );
-    glLightfv( GL_LIGHT1, GL_POSITION, lightPosition );
-
-    glEnable( GL_LIGHT1 );
-
-    glEnable(GL_COLOR_MATERIAL);
+    glDisable(GL_COLOR_MATERIAL);
 
     m_light = false;
 }
@@ -49,6 +48,35 @@ void GLViewer::initializeGL() {
 void GLViewer::paintGL() {
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     glLoadIdentity();
+
+
+
+    GLfloat ambientLight[] = {0.2f, 0.2f, 0.2f, 1.0f};
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientLight);
+
+    GLfloat lightColor[] = {0.6f, 0.6f, 0.6f, 1.0f};
+    GLfloat lightPos[] = {0 , 0 , -500, 10.0f};
+    //Diffuse (non-shiny) light component
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor);
+    //Specular (shiny) light component
+    glLightfv(GL_LIGHT0, GL_SPECULAR, lightColor);
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+    glEnable(GL_LIGHT0);
+
+
+
+    //The color of the sphere
+    GLfloat materialColor[] = {0.2f, 0.2f, 1.0f, 1.0f};
+    //The specular (shiny) component of the material
+    GLfloat materialSpecular[] = {1, 1, 1, 1.0f};
+    //The color emitted by the material
+    GLfloat materialEmission[] = {0.05, 0.05, 0.05, 1.0f};
+
+    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, materialColor);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, materialSpecular);
+    glMaterialfv(GL_FRONT, GL_EMISSION, materialEmission);
+    glMaterialf(GL_FRONT, GL_SHININESS, 12); //The shininess parameter
+
     this->render();
 }
 
@@ -57,14 +85,12 @@ void GLViewer::resizeGL( int width, int height ) {
     glViewport( 0, 0, (GLint)width, (GLint)height );
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-
     GLfloat zNear = 0.1;
     GLfloat zFar = 1000.0;
     GLfloat aspect = (GLfloat)width/(GLfloat)height;
     GLfloat fH = tan(GLfloat(90.0/360.0*3.14159))*zNear;
     GLfloat fW = fH * aspect;
     glFrustum(-fW, fW, -fH, fH, zNear, zFar);
-//    gluPerspective( 45.0, (GLfloat)width/(GLfloat)height, 0.1, 1000.0 );
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
 }

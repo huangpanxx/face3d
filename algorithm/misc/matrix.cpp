@@ -42,8 +42,7 @@ bool solve_sparse(int* px,int *py,double *pv,double *pB,int sz,int N) {
     a.x = pv;
 
     cs *pa = cs_compress(&a);
-
-    int nRet = cs_qrsol(2,pa,pB);
+    int nRet = cs_cholsol(1,pa,pB);
     cs_spfree(pa);
     return 0 != nRet;
 }

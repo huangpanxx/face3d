@@ -20,8 +20,10 @@
 #include "fiber.h"
 #include "face/templateface.h"
 #include "gl/dotobject.h"
+#include "matting.h"
+#include "ui/scribblewidget.h"
 
-
+#include <fstream>
 
 void gl_test() {
     GLViewer *v = new GLViewer();
@@ -74,7 +76,9 @@ int rd() {
 int main(int argc, char *argv[])
 {
     QApplication app(argc,argv);
-    init_resources();
+
+
+
 
     face::TemplateFace tface("/users/snail/desktop/shape.txt",
                              "/users/snail/desktop/color.txt",
@@ -122,6 +126,13 @@ int main(int argc, char *argv[])
     VEC(cv::Point3f) dface = tface.deform(features);
     VEC(cv::Point3f) oface = points3f_from_mat(fs);
 
+
+//    std::ofstream fout("/users/snail/desktop/face.off");
+//    write_off_file(dface,
+//                   fout);
+//    return 0;
+
+
     VEC(cv::Point2f) dxy;
     FOR_EACH(it,dface) {
         dxy.push_back(cv::Point2f(it->x,it->y));
@@ -134,6 +145,7 @@ int main(int argc, char *argv[])
 
     v->addObject(new DotObject(dface));
     v->addObject(new DotObject(oface));
+    v->addObject(new USFHead("/users/snail/desktop/T0000.off"));
 
     v->updateGL();
     v->show();;

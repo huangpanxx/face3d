@@ -15,8 +15,7 @@ public:
     }
 
 protected:
-
-    GLdotRender m_render;
+    GLtriRender m_render;
 };
 
 

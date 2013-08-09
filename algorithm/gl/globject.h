@@ -60,22 +60,21 @@ class GLtriRender : public GLrender {
 public:
     virtual void render() {
         glBegin(GL_TRIANGLES);
-
         for(uint i=0;i<this->tris.size();++i) {
-            float z = 200-vexs[tris[i].v1].z;
-            float r=0,g=0,b=0;
-            const float s = 50;
-            if(z<s) {
-                r=z/s;  g=1-z/s;  b=0;
-            }else{
-                r=1;    g=0;      b=(z-s)/(100-s);
-            }
-            glVertex3f(vexs[tris[i].v1]);
-            glColor3f( r,g,b );
-            glVertex3f(vexs[tris[i].v2]);
-            glColor3f( r,g,b );
-            glVertex3f(vexs[tris[i].v3]);
-            glColor3f( r,g,b );
+            const GLtri3f &tri = tris[i];
+            const GLvex3f &p1  = vexs[tri.v1];
+            const GLvex3f &p2  = vexs[tri.v2];
+            const GLvex3f &p3  = vexs[tri.v3];
+            float x1 = p2.x - p1.x; float y1 = p2.y - p1.y; float z1 = p2.z - p1.z;
+            float x2 = p3.x - p1.x; float y2 = p3.y - p1.y; float z2 = p3.z - p1.z;
+            float nx = y1*z2 - y2*z1;
+            float ny = z1*x2 - z2*x1;
+            float nz = x1*y2 - x2*y1;
+            float s = sqrt(nx*nx + ny*ny + nz*nz);
+            glNormal3f(nx/s,ny/s,nz/s);
+            glVertex3f(p1);
+            glVertex3f(p2);
+            glVertex3f(p3);
         }
         glEnd();
     }
