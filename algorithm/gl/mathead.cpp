@@ -11,6 +11,7 @@ using namespace std;
 
 
 MatHead::MatHead(const char *shapeFileName, const char*colorFileName)
+    :GlcontrollableObject("MatHead")
 {
     cv::Mat shape = read_mat(shapeFileName);
     cv::Mat color = read_mat(colorFileName);

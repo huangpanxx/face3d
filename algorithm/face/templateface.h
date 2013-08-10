@@ -32,6 +32,9 @@ public:
         return this->m_b;
     }
 
+    const std::vector<cv::Point3f>& xyzs() const {
+        return this->m_xyzs;
+    }
     template <class T>
     std::vector<T> filter(const std::vector<T> & src) {
         VEC(T) dst; dst.reserve(this->m_indexs.size());
@@ -43,6 +46,7 @@ public:
 
 private:
     std::vector<cv::Point2f> m_xys;
+    std::vector<cv::Point3f> m_xyzs;
     std::vector<float> m_r,m_g,m_b;
     std::vector<float> m_z;
     std::vector<int> m_indexs;

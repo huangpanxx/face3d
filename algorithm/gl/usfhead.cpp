@@ -4,7 +4,8 @@
 #include <QDebug>
 using namespace std;
 
-USFHead::USFHead(const char* filename){
+USFHead::USFHead(const char* filename)
+    : GlcontrollableObject("USFHead"){
     this->position.z = -600;
     this->position.x = 150;
     do{

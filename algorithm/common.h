@@ -5,6 +5,9 @@
 #include <assert.h>
 #include <time.h>
 
+#define DEBUG //debug model
+
+
 #ifdef MACX
 #include <cs.h>
 #endif
@@ -13,15 +16,16 @@
 #endif
 
 
-/*debug*/
 #ifdef DEBUG
 #define BEGIN_TIME long ___start___ = clock();
-#define PRINT_TIME(x) qDebug()<<x<<(clock()-___start___)/CLOCKS_PER_SEC<<"s";
+#define PRINT_TIME(x) qDebug()<<x<<((float)(clock()-___start___)/CLOCKS_PER_SEC)<<"s";
 #define REBEGIN_TIME ___start___ = clock();
+#define PRINT_TIME_REBEGIN(x) PRINT_TIME(x);REBEGIN_TIME;
 #else
 #define BEGIN_TIME
 #define PRINT_TIME(x)
 #define REBEGIN_TIME
+#define PRINT_TIME_REBEGIN(x)
 #endif
 
 /*macro helper*/
@@ -30,6 +34,9 @@
 
 #define FOR_EACH(it,container) \
     for(typeof((container).begin()) it = (container).begin();it!=(container).end();++it)
+
+
+void init_resources();
 
 
 /*color*/

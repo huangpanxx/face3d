@@ -20,6 +20,8 @@ std::vector<cv::Point2f> points2f_from_mat(const cv::Mat &src, int c1=0, int c2=
 
 std::vector<cv::Point3f> points3f_from_mat(const cv::Mat &src, int c1=0, int c2=1,int c3=2);
 
+std::vector<cv::Point2f> points2f_from_points3f(const VEC(cv::Point3f) &points3f);
+
 template <class T>
 std::vector<T> vector_from_mat(const cv::Mat &src,int col = 0) {
     assert(src.type()==CV_32F && src.cols > col);

@@ -7,10 +7,10 @@
 #include <iostream>
 
 void write_off_file(const std::vector<cv::Point3f> points,
-                    const std::ostream &fout);
+                    std::ostream &fout);
 
 void write_off_file(const std::vector<cv::Point3f> points,
-                    const std::vector<cv::Point3i> vexs,
-                    const std::ostream& fout);
+                    const std::vector<cv::Vec3i> vexs,
+                    std::ostream &fout);
 
 #endif // IO_H

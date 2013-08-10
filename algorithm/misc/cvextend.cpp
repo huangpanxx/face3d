@@ -115,6 +115,15 @@ std::vector<cv::Point2f> points2f_from_mat(const cv::Mat &src, int c1, int c2) {
     return pts;
 }
 
+std::vector<cv::Point2f> points2f_from_points3f(const VEC(cv::Point3f) &points3f) {
+    std::vector<cv::Point2f> points2f;
+    points2f.reserve(points3f.size());
+    for(uint i=0;i<points3f.size();++i){
+        const cv::Point3f &p = points3f.at(i);
+        points2f.push_back(cv::Point2f(p.x,p.y));
+    }
+    return points2f;
+}
 
 cv::Mat normalize(cv::Mat _src,float maxv) {
     cv::Mat src; _src.convertTo(src,CV_32F);

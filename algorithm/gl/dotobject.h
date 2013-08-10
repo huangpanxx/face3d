@@ -8,15 +8,11 @@
 class DotObject : public GlcontrollableObject
 {
 public:
-    DotObject(const std::vector<cv::Point3f> &points);
+    DotObject(const std::vector<cv::Point3f> &points, const QString &name = "DotObject");
     virtual void render();
-    QString name() const {
-        return "DotObject";
-    }
 
 protected:
-
-    GLdotRender m_render;
+    GLtriRender m_render;
 };
 
 
