@@ -27,22 +27,10 @@ void GLViewer::initializeGL() {
     glEnable( GL_DEPTH_TEST );
     glDepthFunc( GL_LEQUAL );
     glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
-
-
     glEnable( GL_TEXTURE_2D );
-
-//    GLfloat lightAmbient[4] = { 0.5, 0.5, 0.5, 1.0 };
-//    GLfloat lightDiffuse[4] = { 1.0, 1.0, 1.0, 1.0 };
-//    GLfloat lightPosition[4] = { 0.0, 0.0, 2.0, 1.0 };
-//    glLightfv( GL_LIGHT1, GL_AMBIENT, lightAmbient );
-//    glLightfv( GL_LIGHT1, GL_DIFFUSE, lightDiffuse );
-//    glLightfv( GL_LIGHT1, GL_POSITION, lightPosition );
-//    glEnable( GL_LIGHT1 );
-//    glEnable(GL_COLOR_MATERIAL);
-
-    glDisable(GL_COLOR_MATERIAL);
-
-    m_light = false;
+    glEnable(GL_COLOR_MATERIAL);
+    m_light = true;
+    glEnable( GL_LIGHTING );
 }
 
 void GLViewer::paintGL() {
@@ -71,11 +59,10 @@ void GLViewer::paintGL() {
     GLfloat materialSpecular[] = {1, 1, 1, 1.0f};
     //The color emitted by the material
     GLfloat materialEmission[] = {0.05, 0.05, 0.05, 1.0f};
-
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, materialColor);
     glMaterialfv(GL_FRONT, GL_SPECULAR, materialSpecular);
     glMaterialfv(GL_FRONT, GL_EMISSION, materialEmission);
-    glMaterialf(GL_FRONT, GL_SHININESS, 12); //The shininess parameter
+    glMaterialf(GL_FRONT, GL_SHININESS, 25); //The shininess parameter
 
     this->render();
 }
@@ -91,6 +78,7 @@ void GLViewer::resizeGL( int width, int height ) {
     GLfloat fH = tan(GLfloat(90.0/360.0*3.14159))*zNear;
     GLfloat fW = fH * aspect;
     glFrustum(-fW, fW, -fH, fH, zNear, zFar);
+
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
 }

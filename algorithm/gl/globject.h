@@ -60,7 +60,7 @@ class GLtriRender : public GLrender {
 public:
     virtual void render() {
         glBegin(GL_TRIANGLES);
-        for(uint i=0;i<this->tris.size();++i) {
+        for(uint i = 0;i < this->tris.size(); ++i) {
             const GLtri3f &tri = tris[i];
             const GLvex3f &p1  = vexs[tri.v1];
             const GLvex3f &p2  = vexs[tri.v2];
