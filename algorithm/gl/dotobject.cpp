@@ -16,7 +16,7 @@ DotObject::DotObject(const std::vector<cv::Point3f> &points,const QString &name)
         GLtri3f tri((*it)(0),(*it)(1),(*it)(2));
         this->m_render.tris.push_back(tri);
     }
-    this->position.z = -200;
+    this->position.z = -500;
 }
 void DotObject::render() {
     this->m_render.render();

@@ -75,9 +75,14 @@ int rd() {
 }
 
 
-string data_dir = string(getenv("HOME")) + "/desktop/face3d_data/";
+string data_dir = string(getenv("HOME")) + "/desktop/face3d/data/";
+string desktop_dir = string(getenv("HOME")) + "/desktop/";
+
 string data_file(const string& filename) {
     return data_dir + filename;
+}
+string desktop_file(const string& filename) {
+    return desktop_dir + filename;
 }
 
 VEC(cv::Point3f) centric_points(const VEC(cv::Point3f) &points,bool flipY = false) {
@@ -95,7 +100,7 @@ VEC(cv::Point3f) centric_points(const VEC(cv::Point3f) &points,bool flipY = fals
     rts.reserve(points.size());
     FOR_EACH(it,points) {
         float x = it->x - sx;
-        float y = flipY?(it->y - sy):(sy - it->y);
+        float y = flipY ? (sy - it->y) : (it->y - sy);
         float z = it->z - sz;
         rts.push_back(cv::Point3f(x,y,z));
     }
@@ -106,7 +111,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc,argv);
 
-    qDebug()<<"as"<<endl;
+    //qDebug()<<"as"<<endl;
 
     face::TemplateFace tface(data_file("shape.txt").c_str(),
                              data_file("color.txt").c_str(),
@@ -118,22 +123,22 @@ int main(int argc, char *argv[])
 //    cv::waitKey();
 //    return 0;
 
-    StatModel::FaceLocator locator(data_file("data/muct76.model").c_str(),
-                                   data_file("data/haarcascade_frontalface_alt.xml").c_str());
+    StatModel::FaceLocator locator(data_file("muct76.model").c_str(),
+                                   data_file("haarcascade_frontalface_alt.xml").c_str());
 
     FaceLocateWidget w(0,locator,tface);
-    w.loadImage(data_file("11.png").c_str());
+    w.loadImage(desktop_file("image.png").c_str());
     w.show();
     app.exec();
     const std::vector<cv::Point2f> &points  = w.featurePoints();
 
-    VEC(cv::Point3f) dface = tface.deform(points);
-    VEC(cv::Point3f) cdface = centric_points(dface);
+    VEC(cv::Point3f) dface = tface.filter(tface.deform(points));
+    VEC(cv::Point3f) cdface = centric_points(dface,true);
 
     GLViewer *v = new GLViewer();
 
     v->addObject(new DotObject(cdface));
-    v->addObject(new DotObject(tface.xyzs()));
+    v->addObject(new DotObject(centric_points(tface.filter(tface.xyzs()),true)));
     v->updateGL();
 
     v->show();

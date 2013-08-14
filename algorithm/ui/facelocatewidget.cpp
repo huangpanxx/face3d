@@ -151,8 +151,8 @@ void FaceLocateWidget::on_label_image_mouseMoved(QMouseEvent *event) {
             this->m_selectedPointIndex < (int)this->m_featurePoints.size()) {
          cv::Point2f &p = this->m_featurePoints.at(this->m_selectedPointIndex);
          QPoint pos = this->convertFromImage(event->pos());
-         p.x = pos.x();
-         p.y = pos.y();
+         p.x = range(pos.x(),this->m_rect.x,this->m_rect.x+this->m_rect.width-1);
+         p.y = range(pos.y(),this->m_rect.y,this->m_rect.y+this->m_rect.height-1);
          this->refreshPoints();
     }
 }
