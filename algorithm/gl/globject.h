@@ -43,12 +43,14 @@ inline void glColor3f(const GLvex3f& color) {
 class GLobject
 {
 public:
-    GLobject() { this->position.z = -100; }
+    GLobject(const QString &name) : m_name(name) { this->position.z = -100; }
     virtual void render() = 0;
     virtual void keyEvent(QKeyEvent *) { }
-    virtual QString name() const = 0;
+    QString name() { return this->m_name; }
     GLvex3f rotate;
     GLvex3f position;
+private:
+    QString m_name;
 };
 
 class GLrender {
@@ -104,7 +106,7 @@ public:
 class GlcontrollableObject : public GLobject
 {
 public:
-    GlcontrollableObject() { }
+    GlcontrollableObject(const QString &name) : GLobject(name) { }
     virtual void keyEvent(QKeyEvent *e) {
         switch(e->key()) {
         case 'A': this->position.x -= 10; break;

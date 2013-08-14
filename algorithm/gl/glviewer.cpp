@@ -75,10 +75,11 @@ void GLViewer::resizeGL( int width, int height ) {
     GLfloat zNear = 0.1;
     GLfloat zFar = 1000.0;
     GLfloat aspect = (GLfloat)width/(GLfloat)height;
-    GLfloat fH = tan(GLfloat(90.0/360.0*3.14159))*zNear;
+    GLfloat fH = tan(GLfloat(90.0/360.0*3.1415926))*zNear/2;
     GLfloat fW = fH * aspect;
     glFrustum(-fW, fW, -fH, fH, zNear, zFar);
 
+   // glMatrixMode( GL_PROJECTION );
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
 }

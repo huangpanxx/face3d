@@ -24,6 +24,9 @@
 #include "ui/scribblewidget.h"
 
 #include <fstream>
+#include <stdlib.h>
+
+using namespace std;
 
 void gl_test() {
     GLViewer *v = new GLViewer();
@@ -65,25 +68,82 @@ void align_test() {
 
 
 
-void init_resources() {
-    Q_INIT_RESOURCE(resource);
-}
+
 
 int rd() {
     return random() % 100;
+}
+
+
+string data_dir = string(getenv("HOME")) + "/desktop/face3d_data/";
+string data_file(const string& filename) {
+    return data_dir + filename;
+}
+
+VEC(cv::Point3f) centric_points(const VEC(cv::Point3f) &points,bool flipY = false) {
+    float sx=0,sy=0,sz=0;
+    FOR_EACH(it,points) {
+        sx += it->x;
+        sy += it->y;
+        sz += it->z;
+    }
+    sx /= points.size();
+    sy /= points.size();
+    sz /= points.size();
+
+    VEC(cv::Point3f) rts;
+    rts.reserve(points.size());
+    FOR_EACH(it,points) {
+        float x = it->x - sx;
+        float y = flipY?(it->y - sy):(sy - it->y);
+        float z = it->z - sz;
+        rts.push_back(cv::Point3f(x,y,z));
+    }
+    return rts;
 }
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc,argv);
 
+    qDebug()<<"as"<<endl;
+
+    face::TemplateFace tface(data_file("shape.txt").c_str(),
+                             data_file("color.txt").c_str(),
+                             data_file("index.txt").c_str());
+
+//    float x,y;
+//    cv::Mat mat = tface.getFaceImage(0,x,y);
+//    cv::imshow("",mat);
+//    cv::waitKey();
+//    return 0;
+
+    StatModel::FaceLocator locator(data_file("data/muct76.model").c_str(),
+                                   data_file("data/haarcascade_frontalface_alt.xml").c_str());
+
+    FaceLocateWidget w(0,locator,tface);
+    w.loadImage(data_file("11.png").c_str());
+    w.show();
+    app.exec();
+    const std::vector<cv::Point2f> &points  = w.featurePoints();
+
+    VEC(cv::Point3f) dface = tface.deform(points);
+    VEC(cv::Point3f) cdface = centric_points(dface);
+
+    GLViewer *v = new GLViewer();
+
+    v->addObject(new DotObject(cdface));
+    v->addObject(new DotObject(tface.xyzs()));
+    v->updateGL();
+
+    v->show();
+    app.exec();
+    return 0;
 
 
 
-    face::TemplateFace tface("/users/snail/desktop/shape.txt",
-                             "/users/snail/desktop/color.txt",
-                             "/users/snail/desktop/index.txt");
-
+//    cv::Mat faceFeature = mat_from_points2f(points);
+//    write_mat_to_text("/users/snail/desktop/features.txt",faceFeature);
 
 
     //    float x,y;
@@ -93,18 +153,10 @@ int main(int argc, char *argv[])
 
 
 
-    //    StatModel::FaceLocator locator("/users/snail/desktop/face3d/data/muct76.model",
-    //                                   "/users/snail/desktop/face3d/data/haarcascade_frontalface_alt.xml");
 
-    //    FaceLocateWidget w(0,locator,tface);
-    //    w.loadImage("/users/snail/desktop/image.png");
-    //    w.show();
-    //    app.exec();
-    //    const std::vector<cv::Point2f> &points  = w.featurePoints();
-    //    cv::Mat faceFeature = mat_from_points2f(points);
-    //    write_mat_to_text("/users/snail/desktop/features.txt",faceFeature);
 
-    //    return 0;
+
+//        return 0;
 
     //    std::vector<cv::Point2f> pts;
     //    std::vector<float> vs;
@@ -119,35 +171,35 @@ int main(int argc, char *argv[])
 
     //    return 0;
 
-    cv::Mat fm = read_mat("/users/snail/desktop/features.txt");
-    cv::Mat fs = read_mat("/users/snail/desktop/shape.txt");
+//    cv::Mat fm = read_mat("/users/snail/desktop/features.txt");
+//    cv::Mat fs = read_mat("/users/snail/desktop/shape.txt");
 
-    VEC(cv::Point2f) features = points2f_from_mat(fm);
-    VEC(cv::Point3f) dface = tface.deform(features);
-    VEC(cv::Point3f) oface = points3f_from_mat(fs);
-
-
-//    std::ofstream fout("/users/snail/desktop/face.off");
-//    write_off_file(dface,
-//                   fout);
-//    return 0;
+//    VEC(cv::Point2f) features = points2f_from_mat(fm);
+//    VEC(cv::Point3f) dface = tface.deform(features);
+//    VEC(cv::Point3f) oface = points3f_from_mat(fs);
 
 
-    VEC(cv::Point2f) dxy;
-    FOR_EACH(it,dface) {
-        dxy.push_back(cv::Point2f(it->x,it->y));
-    }
+////    std::ofstream fout("/users/snail/desktop/face.off");
+////    write_off_file(dface,
+////                   fout);
+////    return 0;
 
-    cv::Rect_<float> rect = rectf_from_points(dxy);
-    cv::imshow("red",griddata(dxy,tface.r(),rect.x,rect.y,rect.width,rect.height,0)/255.0);
 
-    GLViewer *v = new GLViewer();
+//    VEC(cv::Point2f) dxy;
+//    FOR_EACH(it,dface) {
+//        dxy.push_back(cv::Point2f(it->x,it->y));
+//    }
 
-    v->addObject(new DotObject(dface));
-    v->addObject(new DotObject(oface));
-    v->addObject(new USFHead("/users/snail/desktop/T0000.off"));
+//    cv::Rect_<float> rect = rectf_from_points(dxy);
+//    cv::imshow("red",griddata(dxy,tface.r(),rect.x,rect.y,rect.width,rect.height,0)/255.0);
 
-    v->updateGL();
-    v->show();;
-    return  app.exec();
+//    GLViewer *v = new GLViewer();
+
+//    v->addObject(new DotObject(dface));
+//    v->addObject(new DotObject(oface));
+//    v->addObject(new USFHead("/users/snail/desktop/T0000.off"));
+
+//    v->updateGL();
+//    v->show();;
+//    return  app.exec();
 }

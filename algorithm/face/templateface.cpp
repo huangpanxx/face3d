@@ -25,6 +25,7 @@ TemplateFace::TemplateFace(const char*shapefile , const char *colorfile, const c
     cv::Mat mcolor = read_mat(colorfile);
     cv::Mat mindex = read_mat(indexfile);
 
+    m_xyzs = points3f_from_mat(mshape,0,1,2);
     m_xys = points2f_from_mat(mshape,0,1);
     m_z = vector_from_mat<float>(mshape,2);
 

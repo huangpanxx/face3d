@@ -36,6 +36,9 @@
     for(typeof((container).begin()) it = (container).begin();it!=(container).end();++it)
 
 
+void init_resources();
+
+
 /*color*/
 void hsl_to_rgb(double h, double s, double L,int &rr,int &gg,int &bb);
 

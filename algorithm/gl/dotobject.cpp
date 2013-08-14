@@ -1,7 +1,8 @@
 #include "dotobject.h"
 #include "common.h"
 
-DotObject::DotObject(const std::vector<cv::Point3f> &points) : GlcontrollableObject()
+DotObject::DotObject(const std::vector<cv::Point3f> &points,const QString &name)
+    : GlcontrollableObject(name)
 {
 
     FOR_EACH(it,points) {

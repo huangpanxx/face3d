@@ -67,3 +67,6 @@ void draw_tris(cv::Mat &mat,float x,float y,const std::vector<cv::Point2f> &pts,
     }
 }
 
+void init_resources() {
+    Q_INIT_RESOURCE(resource);
+}
