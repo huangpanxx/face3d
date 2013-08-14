@@ -60,16 +60,44 @@ cv::Mat TemplateFace::getFaceImage(float blank,float &x,float &y) const {
     return dst;
 }
 
+cv::Mat TemplateFace::align(const VEC(cv::Point2f) &feature_points) const {
+    cv::Mat msrc = cv::Mat::zeros(4,4,CV_32F),
+            mdst = cv::Mat::zeros(4,1,CV_32F),
+            mtran;
+
+    for(uint i=0;i<feature_points.size();++i) {
+        const cv::Point2f &xy_src = this->m_xys[i];
+        const cv::Point2f &xy_dst = feature_points[i];
+        float x = xy_src.x,   y = xy_src.y;
+        float _x = xy_dst.x, _y = xy_dst.y;
+        float r = xy_src.dot(xy_src);
+        msrc.at<float>(0,0) += x;  msrc.at<float>(0,1) += y; msrc.at<float>(0,2) += 1; mdst.at<float>(0,0) += _x;
+        msrc.at<float>(1,0) += y; msrc.at<float>(1,1) += -x; msrc.at<float>(1,3) += 1; mdst.at<float>(1,0) += _y;
+        msrc.at<float>(2,0) += r; msrc.at<float>(2,2) += x; msrc.at<float>(2,3) += y;  mdst.at<float>(2,0) += x*_x+y*_y;
+        msrc.at<float>(3,1) += r; msrc.at<float>(3,2) += y; msrc.at<float>(3,3) += -x; mdst.at<float>(3,0) += y*_x-x*_y;
+    }
+    cv::solve(msrc,mdst,mtran);
+    return mtran;
+}
+
 std::vector<cv::Point3f> TemplateFace::deform(const std::vector<cv::Point2f> &feature_points) const {
     const uint n = feature_points.size();
     std::vector<cv::Point2f> src(this->m_xys.begin(),this->m_xys.begin() + n);
-    std::vector<float> dst_x; dst_x.reserve(this->m_xys.size());
-    std::vector<float> dst_y; dst_y.reserve(this->m_xys.size());
+    std::vector<float> dst_x; dst_x.reserve(n);
+    std::vector<float> dst_y; dst_y.reserve(n);
 
     FOR_EACH(pt,feature_points) {
         dst_x.push_back(pt->x);
         dst_y.push_back(pt->y);
     }
+
+    cv::Mat mtran = this->align(feature_points);
+    float a = mtran.at<float>(0,0);
+    float b = mtran.at<float>(0,1);
+//    float tx = mtran.at<float>(0,2);
+//    float ty = mtran.at<float>(0,3);
+    float scale = distance(a,b);
+
 
     Tps tps_x(src,dst_x), tps_y(src,dst_y);
 
@@ -81,7 +109,7 @@ std::vector<cv::Point3f> TemplateFace::deform(const std::vector<cv::Point2f> &fe
         float new_x = tps_x.interpolate(xy.x,xy.y);
         float new_y = tps_y.interpolate(xy.x,xy.y);
         deformed_face.push_back(
-                    cv::Point3f(new_x,new_y,this->m_z[i])
+                    cv::Point3f(new_x,new_y,this->m_z[i]*scale)
                     );
     }
     return deformed_face;

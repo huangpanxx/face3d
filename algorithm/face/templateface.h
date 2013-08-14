@@ -21,7 +21,9 @@ public:
         return this->m_indexs;
     }
 
-    std::vector<cv::Point3f> deform(const std::vector<cv::Point2f> &feature_points) const;
+    std::vector<cv::Point3f>
+    deform(const std::vector<cv::Point2f> &feature_points) const;
+
     const std::vector<float>& r() const {
         return this->m_r;
     }
@@ -40,6 +42,8 @@ public:
         }
         return dst;
     }
+protected:
+    cv::Mat align(const VEC(cv::Point2f) &feature_points) const;
 
 private:
     std::vector<cv::Point2f> m_xys;
