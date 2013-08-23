@@ -5,16 +5,9 @@
 #include <assert.h>
 #include <time.h>
 
-#define DEBUG //debug model
+//#define DEBUG //debug model
 
-
-#ifdef MACX
-#include <cs.h>
-#endif
-#ifdef LINUX
-#include <suitesparse/cs.h>
-#endif
-
+#include <../cxsparse/cs.h>
 
 #ifdef DEBUG
 #define BEGIN_TIME long ___start___ = clock();
@@ -35,7 +28,6 @@
 #define FOR_EACH(it,container) \
     for(typeof((container).begin()) it = (container).begin();it!=(container).end();++it)
 
-
 void init_resources();
 
 
@@ -55,6 +47,19 @@ void draw_tri(cv::Mat &mat,float x,float y,const std::vector<cv::Point2f> &pts,
                const cv::Vec3i &tri);
 void draw_poly(cv::Mat &mat, float x,float y,
                const std::vector<cv::Point2f> &vex);
+
+/*operator*/
+template <class T>
+VEC(T) operator + (const VEC(T) &op1,const VEC(T) &op2) {
+    VEC(T) ls;ls.reserve(op1.size()+op2.size());
+    FOR_EACH(it,op1) {
+        ls.push_back(*it);
+    }
+    FOR_EACH(it,op2) {
+        ls.push_back(*it);
+    }
+    return ls;
+}
 
 #include "misc/number.h"
 #include "misc/matrix.h"

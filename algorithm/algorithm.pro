@@ -13,8 +13,6 @@ TARGET = algorithm
 
 TEMPLATE = lib
 
-DEFINES += ALGORITHM_LIBRARY
-
 SOURCES += \
     fiber.cpp \
     common.cpp \
@@ -94,17 +92,4 @@ OTHER_FILES +=
 RESOURCES += \
     resource.qrc
 
-
-
-macx {
-# mac only
-DEFINES += MACX
-}
-unix:!macx{
-# linux only
-DEFINES += LINUX
-}
-win32 {
-# windows only
-DEFINES += WIN32
-}
+LIBS    +=  -L$$OUT_PWD/../cxsparse -lcxsparse

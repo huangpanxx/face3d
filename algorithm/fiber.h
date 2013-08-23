@@ -62,8 +62,8 @@ correctPoint(float x,float y,float theta,const cv::Mat &rsp,const float sampleSt
 //pre process
 cv::Mat BGRToGray(const cv::Mat &src);
 cv::Mat gaussBlur(const cv::Mat &src, int sz, float sigma);
-cv::Mat localEnhence(const cv::Mat src, int sz = 3, float offset=0.05, float low=0);
-
+cv::Mat localEnhence(const cv::Mat &src, int sz = 3, float offset=0.05, float low=0);
+cv::Mat powEnhence(const cv::Mat &src,float coef);
 
 //post process
 cv::Mat

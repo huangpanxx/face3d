@@ -3,6 +3,7 @@
 #include <fstream>
 #include <QDebug>
 #include <string>
+#include <opencv2/imgproc/imgproc.hpp>
 using namespace std;
 
 bool write_mat(const char* filename, const cv::Mat &mat) {
@@ -115,7 +116,15 @@ std::vector<cv::Point2f> points2f_from_mat(const cv::Mat &src, int c1, int c2) {
     return pts;
 }
 
-std::vector<cv::Point2f> points2f_from_points3f(const VEC(cv::Point3f) &points3f) {
+std::vector<cv::Point2f> translate(const VEC(cv::Point2f) &xy,float tx,float ty) {
+    VEC(cv::Point2f) pts; pts.reserve(xy.size());
+    FOR_EACH(it,xy) {
+        pts.push_back(cv::Point2f(it->x+tx,it->y+ty));
+    }
+    return pts;
+}
+
+std::vector<cv::Point2f> xy_from_xyz(const VEC(cv::Point3f) &points3f) {
     std::vector<cv::Point2f> points2f;
     points2f.reserve(points3f.size());
     for(uint i=0;i<points3f.size();++i){
@@ -123,6 +132,47 @@ std::vector<cv::Point2f> points2f_from_points3f(const VEC(cv::Point3f) &points3f
         points2f.push_back(cv::Point2f(p.x,p.y));
     }
     return points2f;
+}
+
+
+std::vector<float> x_from_xyz(const VEC(cv::Point3f) &points3f) {
+    std::vector<float> X; X.reserve(points3f.size());
+    FOR_EACH(it,points3f) {
+        X.push_back(it->x);
+    }
+    return X;
+}
+
+std::vector<float> y_from_xyz(const VEC(cv::Point3f) &xyz) {
+    std::vector<float> Y; Y.reserve(xyz.size());
+    FOR_EACH(it,xyz) {
+        Y.push_back(it->y);
+    }
+    return Y;
+}
+
+std::vector<float> z_from_xyz(const VEC(cv::Point3f) &xyz) {
+   std::vector<float> Z; Z.reserve(xyz.size());
+   FOR_EACH(it,xyz) {
+       Z.push_back(it->z);
+   }
+   return Z;
+}
+
+std::vector<float> x_from_xy(const VEC(cv::Point2f) &xy) {
+    std::vector<float> X; X.reserve(xy.size());
+    FOR_EACH(it,xy) {
+        X.push_back(it->x);
+    }
+    return X;
+}
+
+std::vector<float> y_from_xy(const VEC(cv::Point2f) &xy) {
+    std::vector<float> Y; Y.reserve(xy.size());
+    FOR_EACH(it,xy) {
+        Y.push_back(it->y);
+    }
+    return Y;
 }
 
 cv::Mat normalize(cv::Mat _src,float maxv) {
@@ -209,4 +259,15 @@ QImage mat_to_image(const cv::Mat &mat) {
         }
     }
     return image;
+}
+
+cv::Mat to_cv8u_image(const cv::Mat &src) {
+    cv::Mat dst = src.clone();
+    if(src.channels() == 3) {
+        cv::cvtColor(src,dst,CV_BGR2GRAY);
+    }
+    if(dst.type() != CV_8U) {
+        cv::Mat(dst*255.0).convertTo(dst,CV_8U);
+    }
+    return dst;
 }

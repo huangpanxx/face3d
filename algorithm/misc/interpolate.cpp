@@ -61,24 +61,44 @@ inline float base_func(float r){
     else return r * r * log(r);
 }
 
+Tps::Tps() {
 
-Tps::Tps(const std::vector<cv::Point2f> &xy,const std::vector<float> &v)
-{
+}
+
+Tps::Tps(const std::vector<cv::Point3f> &xyz,float regularization) {
+    this->initialize(xy_from_xyz(xyz),z_from_xyz(xyz),regularization);
+}
+
+Tps::Tps(const std::vector<cv::Point2f> &xy,const std::vector<float> &v,float regularization) {
+    this->initialize(xy,v,regularization);
+}
+
+bool Tps::initialize(const std::vector<cv::Point2f> &xy,const std::vector<float> &v,float regularization ) {
     assert(xy.size() == v.size());
-
+    assert(xy.size() >= 3);
     this->m_xy = xy;
     this->m_n = (int)xy.size();
 
     cv::Mat A(m_n+3,m_n+3,CV_32F),B(m_n+3,1,CV_32F);
-    //left up corner
+    //up left corner
+    float a = 0.0;
     for(int i=0;i<m_n;++i){
-        for(int j=i;j<m_n;++j){
-            const cv::Point2f &p1 = xy[i], p2 = xy[j];
-            A.at<float>(i,j) = A.at<float>(j,i) = base_func(abs(p1-p2));
-        }
+        for(int j=i+1;j<m_n;++j){
+            const cv::Point2f &p1 = xy[i], &p2 = xy[j];
+            float elen = distance(p1.x,p1.y,p2.x,p2.y);
+            A.at<float>(i,j) = A.at<float>(j,i)
+                    = base_func(elen);
+            a += 2*elen;
+       }
     }
+    a /= (m_n*m_n);
+    for(int i=0;i<m_n;++i) {
+        A.at<float>(i,i) = regularization*a*a;
+    }
+
     //right up and left down corner
     for(int i = 0; i < m_n; ++i){
+
         const cv::Point2f &p = xy[i];
         A.at<float>(i,m_n+0) = A.at<float>(m_n+0,i) = 1;
         A.at<float>(i,m_n+1) = A.at<float>(m_n+1,i) = p.x;
@@ -98,11 +118,16 @@ Tps::Tps(const std::vector<cv::Point2f> &xy,const std::vector<float> &v)
     for(int i=m_n;i<m_n+3;++i) {
         B.at<float>(i,0) = 0;
     }
-    cv::solve(A,B,m_X);
+
+    bool ok = cv::solve(A,B,m_X);
+    if(!ok) {
+        qDebug()<<"tps ok=false";
+    }
+    return ok;
 }
 
 
-float Tps::interpolate(float x,float y){
+float Tps::interpolate(float x,float y) const{
     float a1 = this->m_X.at<float>(this->m_n+0,0);
     float a2 = this->m_X.at<float>(this->m_n+1,0);
     float a3 = this->m_X.at<float>(this->m_n+2,0);
@@ -114,3 +139,32 @@ float Tps::interpolate(float x,float y){
     }
     return h;
 }
+
+float Tps::interpolate(const cv::Point2f &pt) const {
+    return this->interpolate(pt.x,pt.y);
+}
+
+Tps2d::Tps2d(){
+
+}
+
+Tps2d::Tps2d(const VEC(cv::Point2f) &src,const VEC(cv::Point2f) &dst,float regularization) {
+    this->initialize(src,dst,regularization);
+}
+
+void Tps2d::initialize(const VEC(cv::Point2f) &src, const VEC(cv::Point2f) &dst,float regularization) {
+    this->m_tps_x.initialize(src,x_from_xy(dst),regularization);
+    this->m_tps_y.initialize(src,y_from_xy(dst),regularization);
+}
+
+cv::Point2f Tps2d::interpolate(float x,float y)  const {
+    float new_x = m_tps_x.interpolate(x,y);
+    float new_y = m_tps_y.interpolate(x,y);
+    return cv::Point2f(new_x,new_y);
+}
+
+cv::Point2f Tps2d::interpolate(const cv::Point2f &pt) const {
+    return this->interpolate(pt);
+}
+
+

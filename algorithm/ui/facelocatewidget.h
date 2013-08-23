@@ -2,9 +2,9 @@
 #define FACELOCATEWIDGET_H
 
 #include <QWidget>
-#include <align/asm.h>
+#include "../align/asm.h"
 #include <opencv2/imgproc/imgproc.hpp>
-#include <face/templateface.h>
+#include "../face/templateface.h"
 
 namespace Ui {
 class FaceLocateWidget;

@@ -17,6 +17,7 @@ private:
     cv::CascadeClassifier classifier;
 };
 
+
 }
 
 #endif // ASM_H

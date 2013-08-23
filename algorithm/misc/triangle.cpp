@@ -7,6 +7,7 @@
 #define NO_TIMER
 
 
+
 /*****************************************************************************/
 /*                                                                           */
 /*  (triangle.h)                                                             */
@@ -660,6 +661,9 @@ void trifree();
 #ifdef TRILIBRARY
 #include "triangle.h"
 #endif /* TRILIBRARY */
+
+
+#define printf(fmt,arg...)      //remove all out put message
 
 /* A few forward declarations.                                               */
 

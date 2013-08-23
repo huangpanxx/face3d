@@ -1,16 +1,28 @@
 #include "dotobject.h"
 #include "common.h"
 
-DotObject::DotObject(const std::vector<cv::Point3f> &points,const QString &name)
+DotObject::DotObject(const std::vector<cv::Point3f> &points,bool centric,bool flipY,const QString &name )
     : GlcontrollableObject(name)
 {
 
-    FOR_EACH(it,points) {
+    VEC(cv::Point3f) src;
+    if(centric) {
+        src = centric_points(points,flipY);
+    } else {
+        src.reserve(points.size());
+        int coef = flipY?-1:1;
+        FOR_EACH(it,points) {
+            src.push_back(cv::Point3f(it->x,coef*it->y,it->z));
+        }
+    }
+    src = remove_near_points2d(src,1);
+
+    FOR_EACH(it,src) {
         GLvex3f vex(it->x,it->y,it->z);
         this->m_render.vexs.push_back(vex);
     }
 
-    VEC(cv::Point2f) pt2f = points2f_from_points3f(points);
+    VEC(cv::Point2f) pt2f = xy_from_xyz(src);
     VEC(cv::Vec3i)  tris = trianglate(pt2f);
     FOR_EACH(it,tris) {
         GLtri3f tri((*it)(0),(*it)(1),(*it)(2));

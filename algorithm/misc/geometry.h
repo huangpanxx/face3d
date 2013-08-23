@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include <opencv2/core/core.hpp>
-#include "common.h"
+#include "../common.h"
 #include <QDebug>
 
 
@@ -38,6 +38,7 @@ inline cv::Point2f operator - (const cv::Point2f &p1,const cv::Point2f &p2) {
 
 
 
+
 template<class T>
 class point_equal_comparater_2d {
 public:
@@ -56,6 +57,17 @@ template <class T>
 bool point_y_comparater_2d(const T &p1,const T &p2) {
     return p1.y < p2.y;
 }
+
+#define _remove_near_points2d_builder(T) \
+inline VEC(T) remove_near_points2d(const VEC(T) &points,float eps) { \
+    VEC(T) set(points);  \
+    VEC(T)::iterator it_end =  \
+        std::unique(set.begin(),set.end(),point_equal_comparater_2d<T>(eps)); \
+    return VEC(T)(set.begin(),it_end); \
+}
+_remove_near_points2d_builder(cv::Point2f)
+_remove_near_points2d_builder(cv::Point3f)
+
 
 
 std::vector<cv::Point> find_counters(const cv::Mat &src,float thres, float minDis);

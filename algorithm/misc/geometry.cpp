@@ -20,16 +20,12 @@ private:
 };
 
 
+
+
 std::vector<cv::Point2f> convex_hull(const std::vector<cv::Point2f>& _points,float eps) {
     assert(_points.size() >= 3);
 
-
-    std::vector<cv::Point2f> set(_points); //copy
-
-    std::vector<cv::Point2f>::iterator it_end =
-            std::unique(set.begin(),set.end(),point_equal_comparater_2d<cv::Point2f>(eps)); //unique
-
-    std::vector<cv::Point2f> points(set.begin(),it_end);
+    std::vector<cv::Point2f> points = remove_near_points2d(_points,eps); //unique
 
     uint n = 0;
     for(uint i = 0;i<points.size();++i) {

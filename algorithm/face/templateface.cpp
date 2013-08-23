@@ -8,6 +8,7 @@
 #include "fiber.h"
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+
 namespace face{
 
 template <class T>
@@ -19,11 +20,22 @@ std::vector<T> select_index(const std::vector<T> &elems,const std::vector<int> &
     return new_elems;
 }
 
+TemplateFace::TemplateFace(const char*datadir, float regularization,float dis_th) {
+    std::string dir = std::string(datadir) + "/";
+    this->initialize(dir + "shape.txt", dir + "color.txt", dir + "index.txt",regularization,dis_th);
+}
 
-TemplateFace::TemplateFace(const char*shapefile , const char *colorfile, const char*indexfile) {
-    cv::Mat mshape = read_mat(shapefile);
-    cv::Mat mcolor = read_mat(colorfile);
-    cv::Mat mindex = read_mat(indexfile);
+TemplateFace::TemplateFace(const char*shapefile , const char *colorfile, const char*indexfile,float regularization,float dis_th) {
+    initialize(shapefile,colorfile,indexfile,regularization,dis_th);
+}
+
+void TemplateFace::initialize(const std::string &shapefile ,
+                         const std::string &colorfile,
+                         const std::string &indexfile,
+                         float regularization,float dis_th) {
+    cv::Mat mshape = read_mat(shapefile.c_str());
+    cv::Mat mcolor = read_mat(colorfile.c_str());
+    cv::Mat mindex = read_mat(indexfile.c_str());
 
     m_xyzs = points3f_from_mat(mshape,0,1,2);
     m_xys = points2f_from_mat(mshape,0,1);
@@ -34,7 +46,12 @@ TemplateFace::TemplateFace(const char*shapefile , const char *colorfile, const c
     m_b = vector_from_mat<float>(mcolor,2);
     this->m_indexs = vector_from_mat<int>(mindex,0);
     std::sort(this->m_indexs.begin(),this->m_indexs.end());
+
+    VEC(cv::Point3f) pts3d = remove_near_points2d(this->filter(m_xyzs),dis_th);
+    this->m_tps.initialize(xy_from_xyz(pts3d),z_from_xyz(pts3d),regularization);
+
 }
+
 
 cv::Mat TemplateFace::getFaceImage(float blank,float &x,float &y) const {
 
@@ -61,14 +78,14 @@ cv::Mat TemplateFace::getFaceImage(float blank,float &x,float &y) const {
     return dst;
 }
 
-cv::Mat TemplateFace::align(const VEC(cv::Point2f) &feature_points) const {
+cv::Mat TemplateFace::align2d(const VEC(cv::Point2f) &src,const VEC(cv::Point2f) &dst)  {
     cv::Mat msrc = cv::Mat::zeros(4,4,CV_32F),
             mdst = cv::Mat::zeros(4,1,CV_32F),
             mtran;
 
-    for(uint i=0;i<feature_points.size();++i) {
-        const cv::Point2f &xy_src = this->m_xys[i];
-        const cv::Point2f &xy_dst = feature_points[i];
+    for(uint i=0;i<src.size();++i) {
+        const cv::Point2f &xy_src = src[i];
+        const cv::Point2f &xy_dst = dst[i];
         float x = xy_src.x,   y = xy_src.y;
         float _x = xy_dst.x, _y = xy_dst.y;
         float r = xy_src.dot(xy_src);
@@ -81,40 +98,50 @@ cv::Mat TemplateFace::align(const VEC(cv::Point2f) &feature_points) const {
     return mtran;
 }
 
-std::vector<cv::Point3f> TemplateFace::deform(const std::vector<cv::Point2f> &feature_points) const {
-    const uint n = feature_points.size();
-    std::vector<cv::Point2f> src(this->m_xys.begin(),this->m_xys.begin() + n);
-    std::vector<float> dst_x; dst_x.reserve(n);
-    std::vector<float> dst_y; dst_y.reserve(n);
+VEC(cv::Point3f) TemplateFace::interpolate(const VEC(cv::Point2f) &pts) const {
+    VEC(cv::Point3f) dst; dst.reserve(pts.size());
+    FOR_EACH(it,pts) {
+        float z= this->m_tps.interpolate(*it);
+        dst.push_back(cv::Point3f(it->x,it->y,z));
+    }
+    return dst;
+}
 
-    FOR_EACH(pt,feature_points) {
-        dst_x.push_back(pt->x);
-        dst_y.push_back(pt->y);
+
+
+std::vector<cv::Point3f>
+TemplateFace::deform(const std::vector<cv::Point2f> &_src, float ox, float oy,
+       const std::vector<cv::Point2f> &dst, float regularization, bool filte) const {
+    assert(_src.size() == dst.size());
+
+    const uint n = _src.size();
+    VEC(cv::Point2f) src; src.reserve(n);
+    FOR_EACH(it,_src) {
+        src.push_back(cv::Point2f(it->x+ox,it->y+oy));
     }
 
-    cv::Mat mtran = this->align(feature_points);
+
+    //least square to estimate scale
+    cv::Mat mtran = align2d(src,dst);
     float a = mtran.at<float>(0,0);
     float b = mtran.at<float>(0,1);
-//    float tx = mtran.at<float>(0,2);
-//    float ty = mtran.at<float>(0,3);
     float scale = distance(a,b);
 
-
-    Tps tps_x(src,dst_x), tps_y(src,dst_y);
-
-    std::vector<cv::Point3f> deformed_face;
-    deformed_face.reserve(this->m_xys.size());
-
-    for(uint i=0;i<this->m_xys.size();++i) {
-        const cv::Point2f &xy = this->m_xys[i];
-        float new_x = tps_x.interpolate(xy.x,xy.y);
-        float new_y = tps_y.interpolate(xy.x,xy.y);
-        deformed_face.push_back(
-                    cv::Point3f(new_x,new_y,this->m_z[i]*scale)
-                    );
+    //interpolate
+    Tps2d tps(src,dst,regularization);
+    VEC(cv::Point3f) new_face;
+    new_face.reserve(this->m_xys.size());
+    FOR_EACH(it,this->m_xyzs) {
+        cv::Point2f pt = tps.interpolate(it->x,it->y);
+        new_face.push_back(cv::Point3f(pt.x,pt.y,it->z*scale));
     }
-    return deformed_face;
+
+    if(filte) {
+        new_face = filter(new_face);
+    }
+    return new_face;
 }
+
 
 }
 

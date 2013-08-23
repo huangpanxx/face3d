@@ -259,7 +259,17 @@ float minAngle(float t1,float t2) {
     return fmin(dt,fabs(CV_PI-dt));
 }
 
-cv::Mat localEnhence(const cv::Mat input,int sz,float offset,float low) {
+cv::Mat powEnhence(const cv::Mat &input,float coef) {
+    cv::Mat src = input.clone();
+    for(int c=0;c<src.cols;++c) {
+        for(int r=0;r<src.rows;++r) {
+            src.at<float>(r,c) = pow(src.at<float>(r,c),coef);
+      }
+    }
+    return normalize(src);
+}
+
+cv::Mat localEnhence(const cv::Mat &input,int sz,float offset,float low) {
     assert(sz>=3 && sz%2==1);
     cv::Mat dst = cv::Mat::zeros(input.rows,input.cols,CV_32F);
     cv::Mat src = normalize(input,1);
@@ -414,7 +424,7 @@ traceFiber(float x, float y, cv::Mat &rsp, cv::Mat &sup, const cv::Mat &theta,
 
     rsp.at<float>(y,x) *= -1;
 
-    bool certain = true;
+
     float last_x = x,last_y = y;
     float angle = theta.at<float>(y,x) + (orientation ? 0 : CV_PI);
     const float step = traceStep;
@@ -424,7 +434,7 @@ traceFiber(float x, float y, cv::Mat &rsp, cv::Mat &sup, const cv::Mat &theta,
                 Point(
                     x,y,angle,fabs(sup.at<float>(y,x)),
                     fabs(rsp.at<float>(y,x)),false));
-
+    bool certain = true;
     while(true) {
         bool occlude = false;
 
