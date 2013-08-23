@@ -8,6 +8,8 @@ QT       += opengl
 QT       -= gui
 
 CONFIG += staticlib
+CONFIG += c++11
+
 
 TARGET = algorithm
 

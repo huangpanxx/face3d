@@ -99,8 +99,8 @@ cv::Point3f operator * (const cv::Mat &A,const cv::Point3f &p) {
 
 VEC(cv::Point3f) operator * (const cv::Mat &A,const VEC(cv::Point3f) &pts) {
     VEC(cv::Point3f) new_pts; new_pts.reserve(pts.size());
-    FOR_EACH(it,pts) {
-        new_pts.push_back(A*(*it));
+    for(auto &it : pts) {
+        new_pts.push_back(A*it);
     }
     return new_pts;
 }
@@ -130,27 +130,27 @@ int main(int argc, char *argv[])
     //拟合
     cv::Mat A;
     align3d(tpts3d,pts,A);
-
+    cout<<A<<endl;
 
     cv::Mat im = cv::Mat::zeros(400,400,CV_32FC3);
 
-    FOR_EACH(it,tpts3d) {
-        cout<<*it<<endl;
-        cv::circle(im,cv::Point(it->x+200,it->y+200),1,cv::Scalar( 0,0,1));
+    for(auto &it : tpts3d) {
+        cout<<it<<endl;
+        cv::circle(im,cv::Point(it.x+200,it.y+200),1,cv::Scalar( 0,0,1));
     }
 
     tpts3d = A*centric_points(tpts3d);
     pts = centric_points(pts);
 
 
-    FOR_EACH(it,tpts3d) {
-        cout<<*it<<endl;
-        cv::circle(im,cv::Point(it->x+100,it->y+100),1,cv::Scalar(1,0,0));
+    for(auto &it : tpts3d) {
+        cout<<it<<endl;
+        cv::circle(im,cv::Point(it.x+100,it.y+100),1,cv::Scalar(1,0,0));
     }
     cout<<"other"<<endl;
-    FOR_EACH(it,pts) {
-        cout<<*it<<endl;
-        cv::circle(im,cv::Point(it->x+300,it->y+300),1,cv::Scalar(0,1,0));
+    for(auto &it : pts) {
+        cout<<it<<endl;
+        cv::circle(im,cv::Point(it.x+300,it.y+300),1,cv::Scalar(0,1,0));
     }
     cv::imshow("win",im);
 
@@ -164,6 +164,4 @@ int main(int argc, char *argv[])
     viewer.show();
 
     return app.exec();
-
-
 }

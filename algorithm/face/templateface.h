@@ -51,8 +51,8 @@ public:
     template <class T>
     std::vector<T> filter(const std::vector<T> & src) const {
         VEC(T) dst; dst.reserve(this->m_indexs.size());
-        FOR_EACH(it,this->m_indexs) {
-            dst.push_back(src[*it]);
+        for(auto &it :this->m_indexs) {
+            dst.push_back(src[it]);
         }
         return dst;
     }

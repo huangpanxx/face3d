@@ -118,8 +118,8 @@ std::vector<cv::Point2f> points2f_from_mat(const cv::Mat &src, int c1, int c2) {
 
 std::vector<cv::Point2f> translate(const VEC(cv::Point2f) &xy,float tx,float ty) {
     VEC(cv::Point2f) pts; pts.reserve(xy.size());
-    FOR_EACH(it,xy) {
-        pts.push_back(cv::Point2f(it->x+tx,it->y+ty));
+    for(auto &it : xy) {
+        pts.push_back(cv::Point2f(it.x+tx,it.y+ty));
     }
     return pts;
 }
@@ -137,40 +137,40 @@ std::vector<cv::Point2f> xy_from_xyz(const VEC(cv::Point3f) &points3f) {
 
 std::vector<float> x_from_xyz(const VEC(cv::Point3f) &points3f) {
     std::vector<float> X; X.reserve(points3f.size());
-    FOR_EACH(it,points3f) {
-        X.push_back(it->x);
+    for(auto &it : points3f) {
+        X.push_back(it.x);
     }
     return X;
 }
 
 std::vector<float> y_from_xyz(const VEC(cv::Point3f) &xyz) {
     std::vector<float> Y; Y.reserve(xyz.size());
-    FOR_EACH(it,xyz) {
-        Y.push_back(it->y);
+    for(auto &it :xyz) {
+        Y.push_back(it.y);
     }
     return Y;
 }
 
 std::vector<float> z_from_xyz(const VEC(cv::Point3f) &xyz) {
    std::vector<float> Z; Z.reserve(xyz.size());
-   FOR_EACH(it,xyz) {
-       Z.push_back(it->z);
+   for(auto &it :xyz) {
+       Z.push_back(it.z);
    }
    return Z;
 }
 
 std::vector<float> x_from_xy(const VEC(cv::Point2f) &xy) {
     std::vector<float> X; X.reserve(xy.size());
-    FOR_EACH(it,xy) {
-        X.push_back(it->x);
+    for(auto &it :xy) {
+        X.push_back(it.x);
     }
     return X;
 }
 
 std::vector<float> y_from_xy(const VEC(cv::Point2f) &xy) {
     std::vector<float> Y; Y.reserve(xy.size());
-    FOR_EACH(it,xy) {
-        Y.push_back(it->y);
+    for(auto &it :xy) {
+        Y.push_back(it.y);
     }
     return Y;
 }

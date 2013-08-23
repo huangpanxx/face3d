@@ -24,9 +24,7 @@
 /*macro helper*/
 #define VEC(x) std::vector<x>
 #define REF(x) const x&
-
-#define FOR_EACH(it,container) \
-    for(typeof((container).begin()) it = (container).begin();it!=(container).end();++it)
+#define REF_VEC(x) REF(VEC(x))
 
 void init_resources();
 
@@ -52,10 +50,11 @@ void draw_poly(cv::Mat &mat, float x,float y,
 template <class T>
 VEC(T) operator + (const VEC(T) &op1,const VEC(T) &op2) {
     VEC(T) ls;ls.reserve(op1.size()+op2.size());
-    FOR_EACH(it,op1) {
+
+    for(auto &it : op1) {
         ls.push_back(*it);
     }
-    FOR_EACH(it,op2) {
+    for(auto &it : op2) {
         ls.push_back(*it);
     }
     return ls;

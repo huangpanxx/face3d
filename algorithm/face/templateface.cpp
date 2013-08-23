@@ -100,9 +100,9 @@ cv::Mat TemplateFace::align2d(const VEC(cv::Point2f) &src,const VEC(cv::Point2f)
 
 VEC(cv::Point3f) TemplateFace::interpolate(const VEC(cv::Point2f) &pts) const {
     VEC(cv::Point3f) dst; dst.reserve(pts.size());
-    FOR_EACH(it,pts) {
-        float z= this->m_tps.interpolate(*it);
-        dst.push_back(cv::Point3f(it->x,it->y,z));
+    for(auto &it :pts) {
+        float z= this->m_tps.interpolate(it);
+        dst.push_back(cv::Point3f(it.x,it.y,z));
     }
     return dst;
 }
@@ -116,8 +116,8 @@ TemplateFace::deform(const std::vector<cv::Point2f> &_src, float ox, float oy,
 
     const uint n = _src.size();
     VEC(cv::Point2f) src; src.reserve(n);
-    FOR_EACH(it,_src) {
-        src.push_back(cv::Point2f(it->x+ox,it->y+oy));
+    for(auto &it :_src) {
+        src.push_back(cv::Point2f(it.x+ox,it.y+oy));
     }
 
 
@@ -131,9 +131,9 @@ TemplateFace::deform(const std::vector<cv::Point2f> &_src, float ox, float oy,
     Tps2d tps(src,dst,regularization);
     VEC(cv::Point3f) new_face;
     new_face.reserve(this->m_xys.size());
-    FOR_EACH(it,this->m_xyzs) {
-        cv::Point2f pt = tps.interpolate(it->x,it->y);
-        new_face.push_back(cv::Point3f(pt.x,pt.y,it->z*scale));
+    for(auto &it :this->m_xyzs) {
+        cv::Point2f pt = tps.interpolate(it.x,it.y);
+        new_face.push_back(cv::Point3f(pt.x,pt.y,it.z*scale));
     }
 
     if(filte) {

@@ -21,6 +21,7 @@ SOURCES += main.cpp
 
 HEADERS  +=
 
+CONFIG += c++11
 
 #opencv
 CONFIG += link_pkgconfig
