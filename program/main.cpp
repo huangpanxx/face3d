@@ -10,6 +10,7 @@
 #include <algorithm/gl/glviewer.h>
 #include <algorithm/gl/dotobject.h>
 #include <algorithm/ui/facelocatewidget.h>
+#include <algorithm/misc/newton.h>
 
 class FaceLocator {
 public:
@@ -51,6 +52,61 @@ std::vector<cv::Point2f> FaceLocator::fit(const cv::Mat &image, const char* imag
     }
     return points;
 }
+
+
+
+//void f( double** X, int n )
+//{
+//    assert( n == 3 );
+//    double* A = *X;
+//    double x = A[0];
+//    double y = A[1];
+//    double z = A[2];
+
+//    A[0] = 3*x-cos(y*z)-0.5;
+//    A[1] = x*x-81*(y+0.1)*(y+0.1)+sin(z)+1.06;
+//    A[2] = pow( MATH_E, -x*y)+20*z + 10*MATH_PI/3.0-1;
+//}
+
+//void df( double** X, int n )
+//{
+//    assert( n == 3 );
+//    double* A = *X;
+//    double x = A[0];
+//    double y = A[1];
+//    double z = A[2];
+
+//    A[0] = 3.0;
+//    A[1] = z * sin(y*z);
+//    A[2] = y * sin(y*z);
+
+//    A[3] = 2*x;
+//    A[4] = -162.0*(y+0.1);
+//    A[5] = cos(z);
+
+//    A[6] = -y * pow( MATH_E, -x*y);
+//    A[7] = -x * pow( MATH_E, -x*y);
+//    A[8] = 20.0;
+//}
+
+//int main()
+//{
+//    int n = 3;
+//    double* X = (double*)malloc(sizeof(double)*n);
+//    X[0] = 1.0;
+//    X[1] = 1.0;
+//    X[2] = 1.0;
+
+//    double eps_x = 1e-14;
+//    double eps_f = eps_x;
+//    double lamda = 1.0;
+
+//    newton( &X, n, lamda, eps_x, eps_f, f, df);
+//    printf("%f\t%f\t%f", X[0], X[1], X[2]);
+
+//    free( X );
+//    return 1;
+//}
 
 void align3d(const VEC(cv::Point3f) &P,const VEC(cv::Point2f)& p,cv::Mat &A) {
     VEC(cv::Point2f) _p = centric_points(p);

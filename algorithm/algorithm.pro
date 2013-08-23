@@ -48,7 +48,8 @@ SOURCES += \
     ui/facelocatewidget.cpp \
     face/templateface.cpp \
     gl/dotobject.cpp \
-    misc/3dhelper.cpp
+    misc/3dhelper.cpp \
+    misc/newton.cpp
 
 HEADERS += \
     fiber.h \
@@ -83,7 +84,8 @@ HEADERS += \
     ui/facelocatewidget.h \
     face/templateface.h \
     gl/dotobject.h \
-    misc/3dhelper.h
+    misc/3dhelper.h \
+    misc/newton.h
 
 FORMS += \
     ui/scribblewidget.ui \
