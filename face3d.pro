@@ -5,4 +5,5 @@ SUBDIRS += \
     stasm \
     algorithm \
     program \
+    test \
 

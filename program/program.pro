@@ -17,13 +17,16 @@ TEMPLATE = app
 
 DEFINES += DEBUG
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    align3d.cpp
 
-HEADERS  +=
+HEADERS  += \
+    align3d.h
 
 CONFIG += c++11
 
 #opencv
+QT_CONFIG -= no-pkg-config
 CONFIG += link_pkgconfig
 PKGCONFIG += opencv
 

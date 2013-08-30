@@ -10,7 +10,8 @@
 #include <algorithm/gl/glviewer.h>
 #include <algorithm/gl/dotobject.h>
 #include <algorithm/ui/facelocatewidget.h>
-#include <algorithm/misc/newton.h>
+#include "align3d.h"
+#include <QString>
 
 class FaceLocator {
 public:
@@ -54,123 +55,20 @@ std::vector<cv::Point2f> FaceLocator::fit(const cv::Mat &image, const char* imag
 }
 
 
-
-//void f( double** X, int n )
-//{
-//    assert( n == 3 );
-//    double* A = *X;
-//    double x = A[0];
-//    double y = A[1];
-//    double z = A[2];
-
-//    A[0] = 3*x-cos(y*z)-0.5;
-//    A[1] = x*x-81*(y+0.1)*(y+0.1)+sin(z)+1.06;
-//    A[2] = pow( MATH_E, -x*y)+20*z + 10*MATH_PI/3.0-1;
-//}
-
-//void df( double** X, int n )
-//{
-//    assert( n == 3 );
-//    double* A = *X;
-//    double x = A[0];
-//    double y = A[1];
-//    double z = A[2];
-
-//    A[0] = 3.0;
-//    A[1] = z * sin(y*z);
-//    A[2] = y * sin(y*z);
-
-//    A[3] = 2*x;
-//    A[4] = -162.0*(y+0.1);
-//    A[5] = cos(z);
-
-//    A[6] = -y * pow( MATH_E, -x*y);
-//    A[7] = -x * pow( MATH_E, -x*y);
-//    A[8] = 20.0;
-//}
-
-//int main()
-//{
-//    int n = 3;
-//    double* X = (double*)malloc(sizeof(double)*n);
-//    X[0] = 1.0;
-//    X[1] = 1.0;
-//    X[2] = 1.0;
-
-//    double eps_x = 1e-14;
-//    double eps_f = eps_x;
-//    double lamda = 1.0;
-
-//    newton( &X, n, lamda, eps_x, eps_f, f, df);
-//    printf("%f\t%f\t%f", X[0], X[1], X[2]);
-
-//    free( X );
-//    return 1;
-//}
-
-void align3d(const VEC(cv::Point3f) &P,const VEC(cv::Point2f)& p,cv::Mat &A) {
-    VEC(cv::Point2f) _p = centric_points(p);
-    VEC(cv::Point3f) _P = centric_points(P);
-    cv::Mat mp =  mat_from_points2f(_p).t();
-    cv::Mat mP = mat_from_points3f(_P).t();
-
-    cv::Mat a = mp*mP.t()*((mP*mP.t()).inv());
-    A = a;
-    cout<<A*mP<<endl;
-    cout<<mp<<endl;
-    return;
-
-    float ptx = _p[0].x - p[0].x;
-    float pty = _p[0].y - p[0].y;
-    float Ptx = _P[0].x - P[0].x;
-    float Pty = _P[0].y - P[0].y;
-    float Ptz = _P[0].z - P[0].z;
-
-    float tx = ptx - a.at<float>(0,0) * Ptx - a.at<float>(0,1) * Pty - a.at<float>(0,2) * Ptz;
-    float ty = pty - a.at<float>(1,0) * Ptx - a.at<float>(1,1) * Pty - a.at<float>(1,2) * Ptz;
-
-    A = cv::Mat(3,3,CV_32F);
-    for(int i=0;i<2;++i){
-        for(int j=0;j<3;++j) {
-            A.at<float>(i,j) = a.at<float>(i,j);
-        }
-    }
-    A.at<float>(2,0) = tx;
-    A.at<float>(2,1) = ty;
-    A.at<float>(2,2) = 0;
-}
-
-cv::Point3f apply_matrix(const cv::Mat &A,const cv::Point3f &p) {
-    float x = A.at<float>(0,0)*p.x + A.at<float>(0,1)*p.y + A.at<float>(0,2)*p.z;
-    float y = A.at<float>(1,0)*p.x + A.at<float>(1,1)*p.y + A.at<float>(1,2)*p.z;
-    //float z = A.at<float>(2,0)*p.x + A.at<float>(2,1)*p.y + A.at<float>(2,2)*p.z;
-    float a1 = A.at<float>(0,0) + A.at<float>(0,1) + A.at<float>(0,2);
-    float a2 = A.at<float>(1,0) + A.at<float>(1,1) + A.at<float>(1,2);
-    return cv::Point3f(x,y,p.z/distance(a1,a2));
-}
-
-cv::Point3f operator * (const cv::Mat &A,const cv::Point3f &p) {
-    return apply_matrix(A,p);
-}
-
-VEC(cv::Point3f) operator * (const cv::Mat &A,const VEC(cv::Point3f) &pts) {
-    VEC(cv::Point3f) new_pts; new_pts.reserve(pts.size());
-    for(auto &it : pts) {
-        new_pts.push_back(A*it);
-    }
-    return new_pts;
-}
-
-
 int main(int argc, char *argv[])
 {
     QApplication app(argc,argv);
 
+    QWidget *w =  new ScribbleWidget();
+    w->show();
+    app.exec();
+
     //初始化
     face::TemplateFace tface("./data/face/",0.0001,10);
 
+
     //载入图像
-    cv::Mat image = cv::imread("/home/snail/桌面/right.png");
+    cv::Mat image = cv::imread("../test.png");
     float x,y;
     cv::Mat timage= tface.getFaceImage(100,x,y);
 
@@ -179,35 +77,28 @@ int main(int argc, char *argv[])
     VEC(cv::Point2f) pts = locator.fit(image),
             tpts = locator.fit(timage);
 
+    pts = VEC(cv::Point2f) (pts.begin()  + 16,pts.end());
+    tpts = VEC(cv::Point2f)(tpts.begin() + 16,tpts.end());
+
     //得到特征点
     tpts = translate(tpts,x,y);
     VEC(cv::Point3f) tpts3d = tface.interpolate(tpts);
 
+
     //拟合
-    cv::Mat A;
-    align3d(tpts3d,pts,A);
-    cout<<A<<endl;
+    cv::Mat A = align3d(tpts3d,pts);
 
-    cv::Mat im = cv::Mat::zeros(400,400,CV_32FC3);
+    cv::Mat im = image;
 
-    for(auto &it : tpts3d) {
-        cout<<it<<endl;
-        cv::circle(im,cv::Point(it.x+200,it.y+200),1,cv::Scalar( 0,0,1));
-    }
-
-    tpts3d = A*centric_points(tpts3d);
-    pts = centric_points(pts);
-
+    tpts3d = A*tpts3d;
 
     for(auto &it : tpts3d) {
-        cout<<it<<endl;
-        cv::circle(im,cv::Point(it.x+100,it.y+100),1,cv::Scalar(1,0,0));
+        cv::circle(im,cv::Point(it.x,it.y),1,cv::Scalar(255,0,0));
     }
-    cout<<"other"<<endl;
     for(auto &it : pts) {
-        cout<<it<<endl;
-        cv::circle(im,cv::Point(it.x+300,it.y+300),1,cv::Scalar(0,1,0));
+        cv::circle(im,cv::Point(it.x,it.y),1,cv::Scalar(0,255,0));
     }
+
     cv::imshow("win",im);
 
 
@@ -215,8 +106,8 @@ int main(int argc, char *argv[])
 
     GLViewer viewer;
     viewer.addObject(new DotObject(A*centric_points(tface.xyzs(true)),true,true));
-    viewer.addObject(new DotObject(tface.xyzs(true),true,true));
-    viewer.addObject(new DotObject(tface.deform(tpts,0,0,pts,0.01),true,true));
+   // viewer.addObject(new DotObject(tface.xyzs(true),true,true));
+  //  viewer.addObject(new DotObject(tface.deform(tpts,0,0,pts,0.01),true,true));
     viewer.show();
 
     return app.exec();

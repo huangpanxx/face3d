@@ -49,6 +49,7 @@ public:
     QString name() { return this->m_name; }
     GLvex3f rotate;
     GLvex3f position;
+    virtual ~GLobject() {}
 private:
     QString m_name;
 };

@@ -128,8 +128,8 @@ std::vector<cv::Point2f> xy_from_xyz(const VEC(cv::Point3f) &points3f) {
     std::vector<cv::Point2f> points2f;
     points2f.reserve(points3f.size());
     for(uint i=0;i<points3f.size();++i){
-        const cv::Point3f &p = points3f.at(i);
-        points2f.push_back(cv::Point2f(p.x,p.y));
+        const cv::Point3f &pt2d = points3f.at(i);
+        points2f.push_back(cv::Point2f(pt2d.x,pt2d.y));
     }
     return points2f;
 }

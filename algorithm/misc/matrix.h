@@ -3,7 +3,11 @@
 
 #include <map>
 #include <vector>
+#include <cmath>
+#include <QDebug>
 #include "../common.h"
+
+
 
 class CSBuilder {
 public:
@@ -65,7 +69,6 @@ private:
 
 
 bool cs_divide(double *dividend, CSBuilder *divisor);
-
 bool solve_sparse(int* px,int *py,double *pv,double *pB,int sz,int N);
 void maat(double * const A,double *AA,int m,int n);//aa'
 void mata(double * const A,double *AA,int m,int n);//a'a

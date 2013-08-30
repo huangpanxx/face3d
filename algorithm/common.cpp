@@ -67,6 +67,20 @@ void draw_tris(cv::Mat &mat,float x,float y,const std::vector<cv::Point2f> &pts,
     }
 }
 
+cv::Point3f apply_matrix(const cv::Mat &A,const cv::Point3f &p) {
+    const int r = A.rows;
+    float tx = 0,ty = 0,tz = 0;
+    if(4 == r) {
+        tx = A.at<float>(0,3);
+        ty = A.at<float>(1,3);
+        tz = A.at<float>(2,3);
+    }
+    float x = A.at<float>(0,0)*p.x + A.at<float>(0,1)*p.y + A.at<float>(0,2)*p.z + tx;
+    float y = A.at<float>(1,0)*p.x + A.at<float>(1,1)*p.y + A.at<float>(1,2)*p.z + ty;
+    float z = A.at<float>(2,0)*p.x + A.at<float>(2,1)*p.y + A.at<float>(2,2)*p.z + tz;
+    return cv::Point3f(x,y,z);
+}
+
 void init_resources() {
     Q_INIT_RESOURCE(resource);
 }

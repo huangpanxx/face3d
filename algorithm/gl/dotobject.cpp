@@ -4,7 +4,26 @@
 DotObject::DotObject(const std::vector<cv::Point3f> &points,bool centric,bool flipY,const QString &name )
     : GlcontrollableObject(name)
 {
+    this->build_mesh(points,centric,flipY);
+}
 
+DotObject::DotObject(const cv::Mat &grid,bool flipY ,const QString &name)
+    : GlcontrollableObject(name) {
+    cv::Mat src;
+    grid.convertTo(src,CV_32F);
+
+    VEC(cv::Point3f) pts;
+    for(int x=0;x<src.cols;++x) {
+        for(int y=0;y<src.rows;++y) {
+            float z = src.at<float>(y,x);
+            cv::Point3f point(x,y,z);
+            pts.push_back(point);
+        }
+    }
+    this->build_mesh(pts,true,flipY);
+}
+
+void DotObject::build_mesh(const std::vector<cv::Point3f> &points, bool centric, bool flipY) {
     VEC(cv::Point3f) src;
     if(centric) {
         src = centric_points(points,flipY);
@@ -30,6 +49,7 @@ DotObject::DotObject(const std::vector<cv::Point3f> &points,bool centric,bool fl
     }
     this->position.z = -500;
 }
+
 void DotObject::render() {
     this->m_render.render();
 }

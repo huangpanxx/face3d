@@ -49,7 +49,7 @@ SOURCES += \
     face/templateface.cpp \
     gl/dotobject.cpp \
     misc/3dhelper.cpp \
-    misc/newton.cpp
+    misc/solver.cpp
 
 HEADERS += \
     fiber.h \
@@ -85,7 +85,7 @@ HEADERS += \
     face/templateface.h \
     gl/dotobject.h \
     misc/3dhelper.h \
-    misc/newton.h
+    misc/solver.h
 
 FORMS += \
     ui/scribblewidget.ui \

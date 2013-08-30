@@ -4,10 +4,10 @@
 #include <opencv2/core/core.hpp>
 #include <assert.h>
 #include <time.h>
-
+#include <ostream>
 //#define DEBUG //debug model
 
-#include <../cxsparse/cs.h>
+#include "../cxsparse/cs.h"
 
 #ifdef DEBUG
 #define BEGIN_TIME long ___start___ = clock();
@@ -60,6 +60,36 @@ VEC(T) operator + (const VEC(T) &op1,const VEC(T) &op2) {
     return ls;
 }
 
+template <class T>
+std::ostream& operator << (std::ostream& os,const VEC(T) &v) {
+    bool first = true;
+    os<<"[";
+    for(auto e : v) {
+        if(first) {
+            first = false;
+        } else {
+            os<<", ";
+        }
+        os<<e;
+    }
+    os<<"]";
+    return os;
+}
+
+cv::Point3f apply_matrix(const cv::Mat &A,const cv::Point3f &p);
+
+inline cv::Point3f operator * (const cv::Mat &A,const cv::Point3f &p) {
+    return apply_matrix(A,p);
+}
+
+inline VEC(cv::Point3f) operator * (const cv::Mat &A,const VEC(cv::Point3f) &pts) {
+    VEC(cv::Point3f) new_pts; new_pts.reserve(pts.size());
+    for(auto &it : pts) {
+        new_pts.push_back(A*it);
+    }
+    return new_pts;
+}
+
 #include "misc/number.h"
 #include "misc/matrix.h"
 #include "misc/interpolate.h"
@@ -68,6 +98,7 @@ VEC(T) operator + (const VEC(T) &op1,const VEC(T) &op2) {
 #include "misc/cvextend.h"
 #include "misc/qtextend.h"
 #include "misc/3dhelper.h"
+#include "misc/solver.h"
 
 
 #endif // COMMON_H

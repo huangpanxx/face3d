@@ -42,8 +42,8 @@ void GLViewer::paintGL() {
     GLfloat ambientLight[] = {0.2f, 0.2f, 0.2f, 1.0f};
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientLight);
 
-    GLfloat lightColor[] = {0.6f, 0.6f, 0.6f, 1.0f};
-    GLfloat lightPos[] = {0 , 0 , -500, 10.0f};
+    GLfloat lightColor[] = {    0.6f,   0.6f, 0.6f, 1.0f};
+    GLfloat lightPos[]   = {    100   ,   0   , -500, 10.0f};
     //Diffuse (non-shiny) light component
     glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor);
     //Specular (shiny) light component
@@ -59,10 +59,11 @@ void GLViewer::paintGL() {
     GLfloat materialSpecular[] = {1, 1, 1, 1.0f};
     //The color emitted by the material
     GLfloat materialEmission[] = {0.05, 0.05, 0.05, 1.0f};
+
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, materialColor);
     glMaterialfv(GL_FRONT, GL_SPECULAR, materialSpecular);
     glMaterialfv(GL_FRONT, GL_EMISSION, materialEmission);
-    glMaterialf(GL_FRONT, GL_SHININESS, 25); //The shininess parameter
+    glMaterialf(GL_FRONT, GL_SHININESS, 100); //The shininess parameter
 
     this->render();
 }

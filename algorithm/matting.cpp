@@ -554,7 +554,7 @@ Matting getMatting(const QImage &image, const QImage &scribble, QRgb foreground,
     getAlpha(ImageHelper(image),ImageHelper(scribble), foreground,
                       background, w, e, lambda,pAlpha);
 
-    PRINT_TIME_REBEGIN("compute alpha:");
+    PRINT_TIME_REBEGIN(QString("compute alpha:(%1)").arg(sz));
 
 
     //rectify alpha
